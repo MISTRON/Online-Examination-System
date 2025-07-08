@@ -33,10 +33,15 @@ const Login = () => {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-cover bg-center overflow-hidden" style={{ backgroundImage: `url('${backgroundImg}')` }}>
-      <div className="relative z-10 w-full max-w-5xl min-h-[600px] rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden border border-orange-100">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <img
+        src={backgroundImg}
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover object-center z-0"
+      />
+      <div className="relative z-20 w-full max-w-5xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden border border-orange-100">
         {/* Left: Illustration & Marketing */}
-        <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-12" style={{ background: 'linear-gradient(135deg, rgba(255,183,77,0.85) 0%, rgba(255,152,0,0.85) 100%)', minHeight: '600px' }}>
+        <div className="md:w-1/2 flex flex-col items-center justify-center p-12" style={{ background: 'linear-gradient(135deg, rgba(255,183,77,0.85) 0%, rgba(255,152,0,0.85) 100%)' }}>
           <div className="mb-10">
             <img src={illustration} alt="Exam Illustration" width={300} height={220} />
           </div>
@@ -46,7 +51,7 @@ const Login = () => {
           </p>
         </div>
         {/* Right: Login Form */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center p-8" style={{
+        <div className="md:w-1/2 flex flex-col justify-center p-8" style={{
           background: 'rgba(255, 255, 255, 0.25)',
           boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
           backdropFilter: 'blur(16px) saturate(180%)',
@@ -90,7 +95,7 @@ const Login = () => {
                 </button>
               </div>
               <div className="text-right mt-1">
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">Forgot password?</Link>
+                <Link to="/forgot-password" className="text-sm text-orange-600 hover:underline">Forgot password?</Link>
               </div>
             </div>
             <br />
@@ -120,7 +125,11 @@ const Login = () => {
           </div>
           */}
           <div className="text-center mt-2 text-white-600 text-base">
-            <Link to="/teacher-login" className="text-sm text-gray-300 underline hover:no-underline">Teacher? Login here</Link>
+            Are you new?{' '}
+            <Link to="/register" className="text-orange-600 hover:underline">Create an Account</Link>
+            <div className="mt-2">
+              <Link to="/teacher-login" className="text-sm text-gray-300 underline hover:no-underline">Teacher? Login here</Link>
+            </div>
           </div>
         </div>
       </div>
