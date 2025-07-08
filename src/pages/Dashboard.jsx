@@ -53,10 +53,20 @@ const Dashboard = () => {
     return stored ? JSON.parse(stored) : []
   })
 
+  // Add a helper to compute status if not present
+  const computeExamStatus = (exam) => {
+    const now = new Date();
+    const start = exam.startDate ? new Date(exam.startDate) : null;
+    const end = exam.endDate ? new Date(exam.endDate) : null;
+    if (start && now < start) return 'upcoming';
+    if (end && now > end) return 'completed';
+    return 'active';
+  };
+
   // Calculate statistics
   const totalExams = exams.length
-  const activeExams = exams.filter(exam => exam.status === 'active').length
-  const upcomingExams = exams.filter(exam => exam.status === 'upcoming').length
+  const activeExams = exams.filter(exam => (exam.status || computeExamStatus(exam)) === 'active').length;
+  const upcomingExams = exams.filter(exam => (exam.status || computeExamStatus(exam)) === 'upcoming').length;
   const completedExams = results.length
   const passedExams = results.filter(result => result.passed).length
   const averageScore = results.length > 0 
@@ -71,9 +81,9 @@ const Dashboard = () => {
       title: 'Total Exams',
       value: totalExams,
       icon: BookOpen,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600'
+      color: 'bg-primary-500',
+      bgColor: 'bg-primary-50',
+      textColor: 'text-primary-600'
     },
     {
       title: 'Active Exams',
@@ -103,28 +113,27 @@ const Dashboard = () => {
 
   // Countdown timer effect
   useEffect(() => {
-    // Fetch next exam
+    // Fetch all exams and find the next upcoming exam for the user
     const fetchNextExam = async () => {
       try {
-        if (!user) return;
-        const response = await fetch(`/api/exams/next/${user.id || user._id}`);
-        if (!response.ok) {
-          if (response.status === 404) {
-            setNextExam(null); // No next exam
-          } else {
-            throw new Error('Failed to fetch next exam');
-          }
+        const response = await fetch('/api/exams')
+        if (!response.ok) throw new Error('Failed to fetch exams')
+        const data = await response.json()
+        // Find the next upcoming exam (startDate in the future, soonest)
+        const now = new Date()
+        const upcoming = data.filter(exam => exam.startDate && new Date(exam.startDate) > now)
+        if (upcoming.length > 0) {
+          const next = upcoming.reduce((a, b) => new Date(a.startDate) < new Date(b.startDate) ? a : b)
+          setNextExam(next)
         } else {
-          const data = await response.json();
-          setNextExam(data);
+          setNextExam(null)
         }
       } catch (err) {
-        setNextExam(null);
-        // Optionally show a toast or friendly message
+        setNextExam(null)
       }
-    };
-    fetchNextExam();
-  }, [user]);
+    }
+    fetchNextExam()
+  }, [])
 
   // Handle swipe to open sidebar (from left edge)
   useEffect(() => {
@@ -209,7 +218,8 @@ const Dashboard = () => {
         const data = await response.json()
         setRecentNotifications(data)
       } catch (err) {
-        // Optionally show a toast or ignore
+        setRecentNotifications([])
+        toast.error('Failed to load recent exams')
       }
     }
     fetchRecentExams()
@@ -235,7 +245,7 @@ const Dashboard = () => {
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
               <BarChart3 size={20} className="text-white" />
             </div>
             <div>
@@ -317,9 +327,9 @@ const Dashboard = () => {
                         <div className="text-gray-500 text-sm">No new notifications</div>
                       ) : (
                         recentNotifications.filter(exam => !dismissedNotifications.includes(exam._id)).map((exam) => (
-                          <div key={exam._id} className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-between">
+                          <div key={exam._id} className="mb-3 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg flex items-center justify-between">
                             <div>
-                              <div className="font-medium text-blue-800 dark:text-blue-200">New Exam: {exam.title}</div>
+                              <div className="font-medium text-primary-800 dark:text-primary-200">New Exam: {exam.title}</div>
                               <div className="text-xs text-gray-500 dark:text-gray-400">Scheduled for {new Date(exam.startDate).toLocaleString()}</div>
                             </div>
                             <button onClick={() => handleDismissNotification(exam._id)} className="ml-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
@@ -339,11 +349,11 @@ const Dashboard = () => {
         {/* Main Dashboard Content */}
         <main className="p-6">
           {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white mb-8">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 text-white mb-8">
             <h1 className="text-3xl font-bold mb-2">
               {`Welcome back${user && user.name ? ", " + user.name : ""}! `}
             </h1>
-            <p className="text-blue-100">
+            <p className="text-primary-100">
               Ready to ace your next exam? You have {activeExams} active exams waiting for you.
             </p>
           </div>
@@ -371,7 +381,7 @@ const Dashboard = () => {
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Exams</h2>
-                  <Link to="/exams" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                  <Link to="/exams" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
                     View all
                   </Link>
                 </div>
@@ -381,8 +391,8 @@ const Dashboard = () => {
                     recentExams.map((exam, idx) => (
                       <div key={exam.id || exam._id || idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                            <BookOpen size={20} className="text-blue-600 dark:text-blue-400" />
+                          <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                            <BookOpen size={20} className="text-primary-600 dark:text-primary-400" />
                           </div>
                           <div>
                             <h3 className="font-medium text-gray-900 dark:text-white">{exam.title}</h3>
@@ -394,12 +404,12 @@ const Dashboard = () => {
                             exam.status === 'active' 
                               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                               : exam.status === 'upcoming'
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                              ? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200'
                               : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                           }`}>
                             {exam.status}
                           </span>
-                          <Link to={`/exam/${exam.id}`} className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                          <Link to={`/exam/${exam.id}`} className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
                             <ArrowRight size={16} />
                           </Link>
                         </div>
@@ -419,7 +429,7 @@ const Dashboard = () => {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Results</h2>
-                <Link to="/results" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                <Link to="/results" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
                   View all
                 </Link>
               </div>
@@ -492,7 +502,7 @@ const Dashboard = () => {
                       fill="transparent"
                       strokeDasharray={`${2 * Math.PI * 56}`}
                       strokeDashoffset={`${2 * Math.PI * 56 * (1 - averageScore / 100)}`}
-                      className="text-blue-600 dark:text-blue-400 transition-all duration-1000"
+                      className="text-primary-600 dark:text-primary-400 transition-all duration-1000"
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -514,20 +524,20 @@ const Dashboard = () => {
                     <div className="mb-4">
                       <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{nextExam.title}</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {nextExam.date.toLocaleDateString()} at {nextExam.time}
+                        {nextExam.date ? new Date(nextExam.date).toLocaleDateString() : (nextExam.startDate ? new Date(nextExam.startDate).toLocaleDateString() : 'Date TBD')} at {nextExam.time || (nextExam.startDate ? new Date(nextExam.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Time TBD')}
                       </p>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{countdown.days}</div>
+                        <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">{countdown.days}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Days</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{countdown.hours}</div>
+                        <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">{countdown.hours}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Hours</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{countdown.minutes}</div>
+                        <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">{countdown.minutes}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Minutes</div>
                       </div>
                     </div>
@@ -539,23 +549,15 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Gamification Badges */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Achievements</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Badges will be dynamically populated based on user's achievements */}
-            </div>
-          </div>
-
           {/* Quick Actions */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link
                 to="/exams"
-                className="flex items-center space-x-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors border border-blue-200 dark:border-blue-700"
+                className="flex items-center space-x-3 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-colors border border-primary-200 dark:border-primary-700"
               >
-                <Play size={24} className="text-blue-600 dark:text-blue-400" />
+                <Play size={24} className="text-primary-600 dark:text-primary-400" />
                 <div>
                   <h3 className="font-medium text-gray-900 dark:text-white">Take Exam</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Start a new examination</p>
@@ -590,7 +592,7 @@ const Dashboard = () => {
         {/* Mobile Bottom Navigation */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
           <div className="flex justify-around py-2">
-            <Link to="/" className="flex flex-col items-center p-2 text-blue-600 dark:text-blue-400">
+            <Link to="/" className="flex flex-col items-center p-2 text-primary-600 dark:text-primary-400">
               <BookOpen size={20} />
               <span className="text-xs mt-1">Dashboard</span>
             </Link>

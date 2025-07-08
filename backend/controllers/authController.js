@@ -112,4 +112,27 @@ exports.getAllResults = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
+};
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      // For security, don't reveal if user exists
+      return res.status(200).json({ message: 'If an account with that email exists, a reset link has been sent.' });
+    }
+    // Simulate sending email (in production, send a real email with a token)
+    // Generate a fake token for now
+    const resetToken = Math.random().toString(36).substr(2);
+    // Log the reset link (simulate email)
+    console.log(`Password reset link for ${email}: http://localhost:3000/reset-password/${resetToken}`);
+    // Respond
+    return res.status(200).json({ message: 'If an account with that email exists, a reset link has been sent.' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
 }; 

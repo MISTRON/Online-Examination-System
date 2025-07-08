@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext'
 
 const ViewExam = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [exam, setExam] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userResult, setUserResult] = useState(null);
 
   useEffect(() => {
     const fetchExam = async () => {
@@ -22,7 +25,17 @@ const ViewExam = () => {
       }
     };
     fetchExam();
-  }, [id]);
+    // Fetch user result for this exam
+    if (user && id) {
+      fetch(`/api/auth/results?user=${user.id || user._id}&exam=${id}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.length > 0) setUserResult(data[0])
+          else setUserResult(null)
+        })
+        .catch(() => setUserResult(null))
+    }
+  }, [id, user]);
 
   if (loading) return <div className="p-8 text-center">Loading...</div>;
   if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
@@ -30,6 +43,11 @@ const ViewExam = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-xl shadow">
+      {userResult && (
+        <div className="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded">
+          You have already taken this exam.
+        </div>
+      )}
       <h1 className="text-2xl font-bold mb-2">{exam.title}</h1>
       <p className="mb-4 text-gray-600 dark:text-gray-300">{exam.description}</p>
       <div className="mb-2"><b>Duration:</b> {exam.duration} min</div>

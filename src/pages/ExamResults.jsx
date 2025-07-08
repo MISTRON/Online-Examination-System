@@ -73,14 +73,14 @@ const ExamResults = () => {
 
   const getScoreColor = (percentage) => {
     if (percentage >= 90) return 'text-green-600 dark:text-green-400'
-    if (percentage >= 80) return 'text-blue-600 dark:text-blue-400'
+    if (percentage >= 80) return 'text-primary-600 dark:text-primary-400'
     if (percentage >= 70) return 'text-yellow-600 dark:text-yellow-400'
     return 'text-red-600 dark:text-red-400'
   }
 
   const getScoreBadge = (percentage) => {
     if (percentage >= 90) return { text: 'Excellent', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' }
-    if (percentage >= 80) return { text: 'Good', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' }
+    if (percentage >= 80) return { text: 'Good', color: 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200' }
     if (percentage >= 70) return { text: 'Average', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' }
     return { text: 'Needs Improvement', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' }
   }
@@ -143,7 +143,7 @@ const ExamResults = () => {
   const passedResults = results.filter(r => r.passed).length
   const failedResults = totalResults - passedResults
   const stats = [
-    { title: 'Total Results', value: totalResults, color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-900/20', icon: BarChart3 },
+    { title: 'Total Results', value: totalResults, color: 'text-primary-600 dark:text-primary-400', bgColor: 'bg-primary-50 dark:bg-primary-900/20', icon: BarChart3 },
     { title: 'Passed', value: passedResults, color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-900/20', icon: UserCheck },
     { title: 'Failed', value: failedResults, color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-900/20', icon: Users },
     { title: 'Avg Score', value: `${averageScore}%`, color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-50 dark:bg-yellow-900/20', icon: Award },
@@ -163,7 +163,7 @@ const ExamResults = () => {
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
               <BarChart3 size={20} className="text-white" />
             </div>
             <div>
@@ -282,7 +282,7 @@ const ExamResults = () => {
                             <RefreshCw size={14} />
                             <span>Retake</span>
                           </button>
-                          <button className="flex items-center space-x-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-lg text-sm hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
+                          <button className="flex items-center space-x-1 px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-lg text-sm hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors">
                             <Eye size={14} />
                             <span>Review</span>
                           </button>
@@ -339,7 +339,7 @@ const ExamResults = () => {
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                     <div 
-                      className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                      className="bg-primary-600 h-3 rounded-full transition-all duration-500"
                       style={{ width: `${averageScore}%` }}
                     ></div>
                   </div>
@@ -367,7 +367,7 @@ const ExamResults = () => {
                         fill="transparent"
                         strokeDasharray={`${2 * Math.PI * 56}`}
                         strokeDashoffset={`${2 * Math.PI * 56 * (1 - averageScore / 100)}`}
-                        className="text-blue-600 dark:text-blue-400 transition-all duration-1000"
+                        className="text-primary-600 dark:text-primary-400 transition-all duration-1000"
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -416,44 +416,6 @@ const ExamResults = () => {
             )}
           </div>
         </div>
-
-        {/* Achievements */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Achievements</h2>
-            <button 
-              onClick={() => togglePanel('achievements')}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              {expandedPanels.achievements ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-          </div>
-          
-          {expandedPanels.achievements && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Achievements will be populated dynamically based on backend data */}
-            </div>
-          )}
-        </div>
-
-        {/* Tips for Improvement */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tips for Improvement</h2>
-            <button 
-              onClick={() => togglePanel('tips')}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              {expandedPanels.tips ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-          </div>
-          
-          {expandedPanels.tips && (
-            <div className="space-y-4">
-              {/* Tips for improvement will be populated dynamically based on backend data */}
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Mobile Bottom Navigation */}
@@ -467,7 +429,7 @@ const ExamResults = () => {
             <Clock size={20} />
             <span className="text-xs mt-1">Exams</span>
           </Link>
-          <Link to="/results" className="flex flex-col items-center p-2 text-blue-600 dark:text-blue-400">
+          <Link to="/results" className="flex flex-col items-center p-2 text-primary-600 dark:text-primary-400">
             <BarChart3 size={20} />
             <span className="text-xs mt-1">Results</span>
           </Link>

@@ -190,7 +190,7 @@ const ManageUsers = () => {
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
               <BarChart3 size={20} className="text-white" />
             </div>
             <div>
@@ -269,7 +269,7 @@ const ManageUsers = () => {
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 pl-10"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 pl-10"
             />
           </div>
           
@@ -326,7 +326,7 @@ const ManageUsers = () => {
             className="p-2 rounded border border-gray-300 dark:bg-gray-700 dark:text-white"
             required
           />
-          <button type="submit" disabled={adding} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">
+          <button type="submit" disabled={adding} className="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 disabled:opacity-50">
             {adding ? 'Adding...' : 'Add Student'}
           </button>
         </form>

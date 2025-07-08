@@ -12,18 +12,36 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '../contexts/AuthContext'
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'active':
+      return 'bg-green-100 text-green-800'
+    case 'upcoming':
+      return 'bg-primary-100 text-primary-800'
+    case 'expired':
+      return 'bg-gray-100 text-gray-800'
+    case 'completed':
+      return 'bg-gray-100 text-gray-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
 
 const TakeExam = () => {
   const { id } = useParams()
   console.log('TakeExam id param:', id)
   const navigate = useNavigate()
   const { getExamById, submitExam } = useExam()
+  const { user } = useAuth()
   const [exam, setExam] = useState(null)
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({})
   const [timeLeft, setTimeLeft] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false)
+  const [userResult, setUserResult] = useState(null)
 
   useEffect(() => {
     let examData = getExamById(id)
@@ -40,11 +58,36 @@ const TakeExam = () => {
             navigate('/exams')
           }
         })
-      return
+      // Don't return here, allow userResult fetch
+    } else {
+      setExam(examData)
+      setTimeLeft(examData.duration * 60 * 1000) // Convert to milliseconds
     }
-    setExam(examData)
-    setTimeLeft(examData.duration * 60 * 1000) // Convert to milliseconds
-  }, [id, getExamById, navigate])
+    // Fetch user result for this exam
+    if (user && id) {
+      fetch(`/api/auth/results?user=${user.id || user._id}&exam=${id}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.length > 0) setUserResult(data[0])
+          else setUserResult(null)
+        })
+        .catch(() => setUserResult(null))
+    }
+  }, [id, getExamById, navigate, user])
+
+  // After fetching or setting exam, compute status if not present
+  useEffect(() => {
+    if (exam && !exam.status) {
+      const now = new Date();
+      const start = exam.startDate ? new Date(exam.startDate) : null;
+      const end = exam.endDate ? new Date(exam.endDate) : null;
+      let status = 'active';
+      if (start && now < start) status = 'upcoming';
+      else if (end && now > end) status = 'expired';
+      exam.status = status;
+      setExam({ ...exam });
+    }
+  }, [exam]);
 
   const handleAnswerChange = (questionId, answer) => {
     setAnswers(prev => ({
@@ -164,6 +207,8 @@ const TakeExam = () => {
   const question = exam.questions[currentQuestion]
   const answeredQuestions = Object.keys(answers).length
   const totalQuestions = exam.questions.length
+  const isCompletedByUser = !!userResult
+  const isActive = !isCompletedByUser && exam.status === 'active'
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -171,7 +216,14 @@ const TakeExam = () => {
       <div className="card">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{exam.title}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              {exam.title}
+              <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(exam.status)}`}
+                style={{ textTransform: 'capitalize' }}
+              >
+                {exam.status}
+              </span>
+            </h1>
             <p className="text-gray-600">{exam.description}</p>
           </div>
           <div className="text-right">
@@ -191,6 +243,15 @@ const TakeExam = () => {
           </div>
         </div>
       </div>
+
+      {/* Show message if not active or completed by user */}
+      {(!isActive || isCompletedByUser) && (
+        <div className="card bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4">
+          {isCompletedByUser && <span>You have already taken this exam.</span>}
+          {!isCompletedByUser && exam.status === 'upcoming' && <span>The exam is scheduled and will be available soon.</span>}
+          {!isCompletedByUser && exam.status === 'expired' && <span>The exam period has ended. You can no longer take this exam.</span>}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Question Navigation */}
@@ -248,7 +309,9 @@ const TakeExam = () => {
 
             <div className="mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">{question.question}</h3>
-              {renderQuestion(question)}
+              <fieldset disabled={!isActive} className={!isActive ? 'opacity-60' : ''}>
+                {renderQuestion(question)}
+              </fieldset>
             </div>
 
             <div className="flex items-center justify-between pt-6 border-t border-gray-200">
@@ -265,7 +328,7 @@ const TakeExam = () => {
                 <button
                   onClick={() => setShowConfirmSubmit(true)}
                   className="btn-primary"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isActive}
                 >
                   {isSubmitting ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

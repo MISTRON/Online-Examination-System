@@ -62,9 +62,9 @@ const AdminDashboard = () => {
       title: 'Total Exams',
       value: totalExams,
       icon: BookOpen,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-      textColor: 'text-blue-600 dark:text-blue-400',
+      color: 'bg-primary-500',
+      bgColor: 'bg-primary-50 dark:bg-primary-900/20',
+      textColor: 'text-primary-600 dark:text-primary-400',
       change: '+3',
       changeType: 'positive'
     },
@@ -171,7 +171,7 @@ const AdminDashboard = () => {
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
               <BarChart3 size={20} className="text-white" />
             </div>
             <div>
@@ -227,9 +227,9 @@ const AdminDashboard = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                 {adminAvatar ? (
-                  <img src={adminAvatar} alt="Admin avatar" className="w-10 h-10 rounded-full object-cover border-2 border-blue-500" />
+                  <img src={adminAvatar} alt="Admin avatar" className="w-10 h-10 rounded-full object-cover border-2 border-primary-500" />
                 ) : (
-                  <FaUserCircle className="w-10 h-10 text-blue-600 dark:text-blue-300" />
+                  <FaUserCircle className="w-10 h-10 text-primary-600 dark:text-primary-300" />
                 )}
                 <div>
                   <p className="font-semibold text-gray-900 dark:text-white">{user?.name || 'Admin'}</p>
@@ -241,7 +241,7 @@ const AdminDashboard = () => {
               {/* Dark Mode Toggle */}
               <button 
                 onClick={toggleDarkMode}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full"
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -250,7 +250,7 @@ const AdminDashboard = () => {
               <div className="relative">
                 <button 
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors relative focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
+                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors relative focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full"
                   aria-label="Show notifications"
                   aria-haspopup="true"
                   aria-expanded={notificationsOpen}
@@ -267,7 +267,7 @@ const AdminDashboard = () => {
                     <div className="p-4">
                       <div className="space-y-3">
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                          <div className="w-2 h-2 bg-primary-500 rounded-full mt-2"></div>
                           <div>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">New exam submission</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">John Doe completed JavaScript Basics</p>
@@ -291,11 +291,11 @@ const AdminDashboard = () => {
 
         <main className="p-6">
           {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white mb-8 transition-colors duration-500">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 text-white mb-8 transition-colors duration-500">
             <h1 className="text-3xl font-bold mb-2">
               {getGreeting()}, {user?.name || 'Admin'}! 
             </h1>
-            <p className="text-blue-100">
+            <p className="text-primary-100">
               Manage your examination system and monitor student performance. You have {activeExams} active exams.
             </p>
           </div>
@@ -375,7 +375,7 @@ const AdminDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Most Attempted Exam */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center hover:shadow-md transition-shadow duration-300">
-              <BookOpen size={28} className="text-blue-500 mb-2 animate-bounce" />
+              <BookOpen size={28} className="text-primary-500 mb-2 animate-bounce" />
               <p className="text-xs text-gray-500 dark:text-gray-400">Most Attempted Exam</p>
               <p className="font-semibold text-gray-900 dark:text-white">
                 {(() => {
@@ -437,7 +437,7 @@ const AdminDashboard = () => {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Exams</h2>
-                <Link to="/admin/exams" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                <Link to="/admin/exams" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
                   View all
                 </Link>
               </div>
@@ -446,8 +446,8 @@ const AdminDashboard = () => {
                 {recentExams.map((exam, idx) => (
                   <div key={exam.id || exam._id || idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <BookOpen size={20} className="text-blue-600 dark:text-blue-400" />
+                      <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                        <BookOpen size={20} className="text-primary-600 dark:text-primary-400" />
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-900 dark:text-white">{exam.title}</h3>
@@ -459,7 +459,7 @@ const AdminDashboard = () => {
                         exam.status === 'active' 
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                           : exam.status === 'upcoming'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          ? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200'
                           : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                       }`}>
                         {exam.status}
@@ -474,7 +474,7 @@ const AdminDashboard = () => {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Submissions</h2>
-                <Link to="/results" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                <Link to="/results" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
                   View all
                 </Link>
               </div>
@@ -527,9 +527,9 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link
                 to="/admin/exams/create"
-                className="flex items-center space-x-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors border border-blue-200 dark:border-blue-700"
+                className="flex items-center space-x-3 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-colors border border-primary-200 dark:border-primary-700"
               >
-                <Plus size={24} className="text-blue-600 dark:text-blue-400" />
+                <Plus size={24} className="text-primary-600 dark:text-primary-400" />
                 <div>
                   <h3 className="font-medium text-gray-900 dark:text-white">Create Exam</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Add a new examination</p>

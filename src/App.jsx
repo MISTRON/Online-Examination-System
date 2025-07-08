@@ -13,9 +13,9 @@ import AdminDashboard from './pages/AdminDashboard'
 import ManageExams from './pages/ManageExams'
 import ManageUsers from './pages/ManageUsers'
 import TeacherLogin from './pages/TeacherLogin'
-import Register from './pages/Register'
 import ViewExam from './pages/ViewExam'
 import EditExam from './pages/EditExam'
+import ForgotPassword from './pages/ForgotPassword'
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/teacher-login" element={<TeacherLogin />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             
             <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
               <Route index element={<Dashboard />} />

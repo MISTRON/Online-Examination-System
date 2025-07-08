@@ -51,7 +51,7 @@ const Sidebar = () => {
     <aside className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-sm border-r border-gray-200 dark:border-gray-700 z-30">
       <div className="p-6">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
             <BarChart3 size={20} className="text-white" />
           </div>
           <div>
@@ -65,7 +65,7 @@ const Sidebar = () => {
         <div className="px-6 mb-6">
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
                 <User size={20} className="text-white" />
               </div>
               <div>
@@ -87,7 +87,7 @@ const Sidebar = () => {
               className={({ isActive }) =>
                 `flex items-center space-x-3 px-3 py-3 rounded-lg mb-1 transition-all duration-200 ${
                   isActive
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-r-2 border-blue-600 shadow-sm'
+                    ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 border-r-2 border-primary-600 shadow-sm'
                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                 }`
               }
@@ -113,20 +113,20 @@ const Sidebar = () => {
       {/* Quick Stats - only for students */}
       {user?.role !== 'admin' && (
         <div className="mt-8 px-6">
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">Quick Stats</h3>
+          <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-primary-900 dark:text-primary-100 mb-2">Quick Stats</h3>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-blue-700 dark:text-blue-300">Exams Taken</span>
-                <span className="font-semibold text-blue-900 dark:text-blue-100">{examsTaken}</span>
+                <span className="text-primary-700 dark:text-primary-300">Exams Taken</span>
+                <span className="font-semibold text-primary-900 dark:text-primary-100">{examsTaken}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-blue-700 dark:text-blue-300">Average Score</span>
-                <span className="font-semibold text-blue-900 dark:text-blue-100">{averageScore}%</span>
+                <span className="text-primary-700 dark:text-primary-300">Average Score</span>
+                <span className="font-semibold text-primary-900 dark:text-primary-100">{averageScore}%</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-blue-700 dark:text-blue-300">Active Exams</span>
-                <span className="font-semibold text-blue-900 dark:text-blue-100">{activeExams}</span>
+                <span className="text-primary-700 dark:text-primary-300">Active Exams</span>
+                <span className="font-semibold text-primary-900 dark:text-primary-100">{activeExams}</span>
               </div>
             </div>
           </div>

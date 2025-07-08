@@ -49,7 +49,7 @@ const Header = () => {
                 <div className="p-4">
                   <div className="space-y-3">
                     <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                      <div className="w-2 h-2 bg-primary-500 rounded-full mt-2"></div>
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">New exam available</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">JavaScript Fundamentals is now available</p>
@@ -77,7 +77,7 @@ const Header = () => {
           
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
                 <User size={16} className="text-white" />
               </div>
               <div className="text-sm">
