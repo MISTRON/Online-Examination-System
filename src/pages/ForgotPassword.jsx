@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const backgroundImg = '/uni-background.webp'; // Use the same background as Login
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -23,8 +25,13 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <img
+        src={backgroundImg}
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover object-center z-0"
+      />
+      <div className="relative z-20 w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-orange-100 bg-white bg-opacity-90 p-8">
         <h2 className="text-2xl font-bold mb-4 text-center">Forgot Password</h2>
         {submitted ? (
           <div className="text-green-700 text-center">

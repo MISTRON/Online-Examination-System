@@ -125,8 +125,6 @@ const Login = () => {
           </div>
           */}
           <div className="text-center mt-2 text-white-600 text-base">
-            Are you new?{' '}
-            <Link to="/register" className="text-orange-600 hover:underline">Create an Account</Link>
             <div className="mt-2">
               <Link to="/teacher-login" className="text-sm text-gray-300 underline hover:no-underline">Teacher? Login here</Link>
             </div>

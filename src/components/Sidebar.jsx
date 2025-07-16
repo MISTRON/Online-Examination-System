@@ -51,11 +51,9 @@ const Sidebar = () => {
     <aside className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-sm border-r border-gray-200 dark:border-gray-700 z-30">
       <div className="p-6">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-            <BarChart3 size={20} className="text-white" />
-          </div>
+          <img src="graduation-hat.png" alt="Graduation Cap" className="w-10 h-10" />
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">ExamVerse</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">MUJExams</h2>
           </div>
         </div>
       </div>
@@ -111,27 +109,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Quick Stats - only for students */}
-      {user?.role !== 'admin' && (
-        <div className="mt-8 px-6">
-          <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-primary-900 dark:text-primary-100 mb-2">Quick Stats</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-primary-700 dark:text-primary-300">Exams Taken</span>
-                <span className="font-semibold text-primary-900 dark:text-primary-100">{examsTaken}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-primary-700 dark:text-primary-300">Average Score</span>
-                <span className="font-semibold text-primary-900 dark:text-primary-100">{averageScore}%</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-primary-700 dark:text-primary-300">Active Exams</span>
-                <span className="font-semibold text-primary-900 dark:text-primary-100">{activeExams}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Removed Quick Stats section as requested */}
     </aside>
   )
 }

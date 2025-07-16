@@ -85,6 +85,11 @@ exports.saveResult = async (req, res) => {
     if (!user || !exam || score == null || totalScore == null || percentage == null || passed == null || !answers) {
       return res.status(400).json({ message: 'All fields are required' });
     }
+    // Prevent duplicate submissions
+    const existing = await Result.findOne({ user, exam });
+    if (existing) {
+      return res.status(400).json({ message: 'You have already submitted this exam.' });
+    }
     const result = new Result({ user, exam, score, totalScore, percentage, passed, answers });
     await result.save();
     res.status(201).json({ message: 'Result saved successfully', result });
@@ -104,10 +109,15 @@ exports.getUserResults = async (req, res) => {
   }
 };
 
-// Fetch all results (for admin/teacher)
+// Fetch all results (for admin/teacher, or filtered by user/exam)
 exports.getAllResults = async (req, res) => {
   try {
-    const results = await Result.find().populate('user', 'name email').populate('exam', 'title');
+    const filter = {};
+    if (req.query.user) filter.user = req.query.user;
+    if (req.query.exam) filter.exam = req.query.exam;
+    const results = await Result.find(filter)
+      .populate('user', 'name email')
+      .populate('exam', 'title');
     res.json(results);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

@@ -310,9 +310,7 @@ const AdminDashboard = () => {
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
                       <CountUp end={parseInt(stat.value)} duration={1.2} separator="," />{typeof stat.value === 'string' && stat.value.includes('%') ? '%' : ''}
                     </p>
-                    <p className={`text-xs ${stat.changeType === 'positive' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                      {stat.change} from last week
-                    </p>
+                    {/* Removed green text for change from last week */}
                   </div>
                   <div className={`p-3 rounded-full ${stat.bgColor} transition-transform duration-200 group-hover:scale-110`}>
                     <stat.icon size={24} className={stat.textColor} />
@@ -323,114 +321,10 @@ const AdminDashboard = () => {
           </div>
 
           {/* Charts Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Submission Trend</h3>
-              <ResponsiveContainer width="100%" height={120}>
-                <BarChart data={[]}>
-                  <XAxis dataKey="Date" hide />
-                  <YAxis hide />
-                  <Bar dataKey="Submissions" fill="#6366f1" radius={[4,4,0,0]} />
-                  <RechartsTooltip />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Average Score (Last 10)</h3>
-              <ResponsiveContainer width="100%" height={120}>
-                <LineChart data={[]}>
-                  <XAxis dataKey="Date" hide />
-                  <YAxis hide />
-                  <Line type="monotone" dataKey="Score" stroke="#10b981" strokeWidth={2} dot={false} />
-                  <RechartsTooltip />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Pass Rate (Last 10)</h3>
-              <ResponsiveContainer width="100%" height={120}>
-                <LineChart data={[]}>
-                  <XAxis dataKey="Date" hide />
-                  <YAxis hide />
-                  <Line type="monotone" dataKey="Passed" stroke="#f59e42" strokeWidth={2} dot={false} />
-                  <RechartsTooltip />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Exam Type Distribution</h3>
-              <ResponsiveContainer width="100%" height={120}>
-                <PieChart>
-                  <Pie data={[]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={40} label>
-                    {[]}
-                  </Pie>
-                  <Legend verticalAlign="bottom" height={24} />
-                  <RechartsTooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          {/* Removed Submission Trend, Average Score (Last 10), Pass Rate (Last 10), Exam Type Distribution cards */}
 
           {/* Quick Insights Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Most Attempted Exam */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center hover:shadow-md transition-shadow duration-300">
-              <BookOpen size={28} className="text-primary-500 mb-2 animate-bounce" />
-              <p className="text-xs text-gray-500 dark:text-gray-400">Most Attempted Exam</p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {(() => {
-                  const freq = examResults.reduce((acc, r) => {
-                    acc[r.examTitle] = (acc[r.examTitle] || 0) + 1; return acc
-                  }, {})
-                  const top = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0]
-                  return top ? `${top[0]} (${top[1]})` : 'N/A'
-                })()}
-              </p>
-            </div>
-            {/* Top Performer This Week */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center hover:shadow-md transition-shadow duration-300">
-              <Award size={28} className="text-purple-500 mb-2 animate-pulse" />
-              <p className="text-xs text-gray-500 dark:text-gray-400">Top Performer This Week</p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {(() => {
-                  const weekAgo = Date.now() - 7*24*60*60*1000
-                  const weekResults = examResults.filter(r => new Date(r.submittedAt).getTime() > weekAgo)
-                  const top = weekResults.sort((a,b)=>b.percentage-a.percentage)[0]
-                  return top ? `${top.studentName || 'N/A'} (${top.percentage}%)` : 'N/A'
-                })()}
-              </p>
-            </div>
-            {/* Active vs Inactive Students */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center hover:shadow-md transition-shadow duration-300">
-              <Users size={28} className="text-green-500 mb-2 animate-spin-slow" />
-              <p className="text-xs text-gray-500 dark:text-gray-400">Active vs Inactive Students</p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {(() => {
-                  // Mock: count unique students in results as active
-                  const active = new Set(examResults.map(r=>r.studentName)).size
-                  const total = 100 // TODO: replace with real user count
-                  return `${active} active / ${total-active} inactive`
-                })()}
-              </p>
-            </div>
-            {/* Exams with Lowest Score */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center hover:shadow-md transition-shadow duration-300">
-              <TrendingUp size={28} className="text-red-500 mb-2 animate-wiggle" />
-              <p className="text-xs text-gray-500 dark:text-gray-400">Exam with Lowest Score</p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {(() => {
-                  const byExam = examResults.reduce((acc, r) => {
-                    if (!acc[r.examTitle]) acc[r.examTitle] = []
-                    acc[r.examTitle].push(r.percentage)
-                    return acc
-                  }, {})
-                  const lowest = Object.entries(byExam).map(([k,v])=>[k, v.reduce((a,b)=>a+b,0)/v.length])
-                    .sort((a,b)=>a[1]-b[1])[0]
-                  return lowest ? `${lowest[0]} (${Math.round(lowest[1])}%)` : 'N/A'
-                })()}
-              </p>
-            </div>
-          </div>
+          {/* Removed Most Attempted Exam, Top Performer This Week, Active vs Inactive Students, Exam with Lowest Score cards */}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Recent Exams */}

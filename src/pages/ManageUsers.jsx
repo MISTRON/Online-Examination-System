@@ -297,7 +297,7 @@ const ManageUsers = () => {
         </div>
 
         {/* Add Student Form */}
-        <form onSubmit={handleAddStudent} className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow flex flex-col gap-4 max-w-md">
+        <form onSubmit={handleAddStudent} className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow flex flex-col gap-4 w-full">
           <h3 className="text-lg font-semibold">Add Student</h3>
           <input
             type="text"
@@ -362,61 +362,7 @@ const ManageUsers = () => {
         </div>
       </div>
       {/* Sidebar Cards */}
-      <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6 mt-8 lg:mt-0">
-        {/* Top Performers */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performers</h3>
-          <div className="space-y-3">
-            {users
-              .filter(user => user.role === 'student' && user.averageScore > 0)
-              .sort((a, b) => b.averageScore - a.averageScore)
-              .slice(0, 3)
-              .map((user, index) => (
-                <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary-600">{index + 1}</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{user.name}</p>
-                      <p className="text-sm text-gray-500">{user.examsTaken} exams</p>
-                    </div>
-                  </div>
-                  <span className={`font-semibold ${getScoreColor(user.averageScore)}`}>
-                    {user.averageScore}%
-                  </span>
-                </div>
-              ))}
-          </div>
-        </div>
-        {/* Recent Activity */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-          <div className="space-y-3">
-            {users
-              .filter(user => user.examsTaken > 0)
-              .sort((a, b) => new Date(b.joinedDate) - new Date(a.joinedDate))
-              .slice(0, 3)
-              .map((user) => (
-                <div key={user.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className={`w-2 h-2 rounded-full ${
-                    user.status === 'active' ? 'bg-green-500' : 'bg-red-500'
-                  }`}></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500">
-                      Joined {new Date(user.joinedDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">{user.examsTaken}</p>
-                    <p className="text-xs text-gray-500">exams</p>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      </div>
+      {/* Removed Top Performers and Recent Activity cards as requested */}
     </div>
   )
 }
