@@ -89,6 +89,13 @@ const TakeExam = () => {
     }
   }, [exam]);
 
+  // If user has already taken the exam, redirect to feedback
+  useEffect(() => {
+    if (userResult && exam) {
+      navigate(`/exam/${exam.id || exam._id}/view`, { replace: true })
+    }
+  }, [userResult, exam, navigate])
+
   const handleAnswerChange = (questionId, answer) => {
     setAnswers(prev => ({
       ...prev,
@@ -112,7 +119,7 @@ const TakeExam = () => {
     setIsSubmitting(true)
     try {
       await submitExam(exam, answers)
-      navigate('/results')
+      navigate(`/exam/${exam.id || exam._id}/view`)
     } catch (error) {
       toast.error('Failed to submit exam')
     } finally {
@@ -139,6 +146,7 @@ const TakeExam = () => {
   }
 
   const renderQuestion = (question) => {
+    const qid = question.id || question._id;
     switch (question.type) {
       case 'multiple_choice':
         return (
@@ -147,10 +155,10 @@ const TakeExam = () => {
               <label key={index} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input
                   type="radio"
-                  name={`question-${question.id}`}
+                  name={`question-${qid}`}
                   value={index}
-                  checked={answers[question.id] === index}
-                  onChange={() => handleAnswerChange(question.id, index)}
+                  checked={answers[qid] === index}
+                  onChange={() => handleAnswerChange(qid, index)}
                   className="text-primary-600 focus:ring-primary-500"
                 />
                 <span className="text-gray-900">{option}</span>
@@ -169,10 +177,10 @@ const TakeExam = () => {
               <label key={index} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input
                   type="radio"
-                  name={`question-${question.id}`}
+                  name={`question-${qid}`}
                   value={option.value}
-                  checked={answers[question.id] === option.value}
-                  onChange={() => handleAnswerChange(question.id, option.value)}
+                  checked={answers[qid] === option.value}
+                  onChange={() => handleAnswerChange(qid, option.value)}
                   className="text-primary-600 focus:ring-primary-500"
                 />
                 <span className="text-gray-900">{option.label}</span>
@@ -184,8 +192,8 @@ const TakeExam = () => {
       case 'essay':
         return (
           <textarea
-            value={answers[question.id] || ''}
-            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+            value={answers[qid] || ''}
+            onChange={(e) => handleAnswerChange(qid, e.target.value)}
             placeholder="Type your answer here..."
             className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
           />
@@ -259,21 +267,24 @@ const TakeExam = () => {
           <div className="card">
             <h3 className="font-semibold text-gray-900 mb-4">Question Navigation</h3>
             <div className="grid grid-cols-5 gap-2">
-              {exam.questions.map((q, index) => (
-                <button
-                  key={q.id || q._id || index}
-                  onClick={() => setCurrentQuestion(index)}
-                  className={`p-2 text-xs font-medium rounded ${
-                    currentQuestion === index
-                      ? 'bg-primary-600 text-white'
-                      : answers[q.id] !== undefined
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
+              {exam.questions.map((q, index) => {
+                const qid = q.id || q._id;
+                return (
+                  <button
+                    key={qid || index}
+                    onClick={() => setCurrentQuestion(index)}
+                    className={`p-2 text-xs font-medium rounded ${
+                      currentQuestion === index
+                        ? 'bg-primary-600 text-white'
+                        : answers[qid] !== undefined
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                );
+              })}
             </div>
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="flex items-center justify-between text-sm">

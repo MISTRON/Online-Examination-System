@@ -31,6 +31,7 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="exams" element={<ExamList />} />
               <Route path="exam/:id" element={<TakeExam />} />
+              <Route path="exam/:id/view" element={<ViewExam />} />
               <Route path="results" element={<ExamResults />} />
               
               {/* Admin Routes */}

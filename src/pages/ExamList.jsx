@@ -34,7 +34,7 @@ import {
 
 const ExamList = () => {
   const { user, logout, darkMode, toggleDarkMode } = useAuth()
-  const { exams } = useExam()
+  const { exams, examResults } = useExam()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -124,6 +124,8 @@ const ExamList = () => {
     if (end && now > end) return 'completed';
     return 'active';
   };
+
+  const userExamResults = examResults || [];
 
   // Handle swipe to open/close sidebar (from left edge)
   useEffect(() => {
@@ -345,7 +347,9 @@ const ExamList = () => {
           {filteredExams.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {filteredExams.map((exam, idx) => {
-                const status = exam.status || computeExamStatus(exam);
+                // Check if user has completed this exam
+                const result = userExamResults.find(r => (r.exam === (exam.id || exam._id)) || (r.exam?._id === (exam.id || exam._id)));
+                const status = result ? 'completed' : (exam.status || computeExamStatus(exam));
                 return (
                   <div key={exam.id || exam._id || idx} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                     <div className="flex items-start justify-between mb-4">
@@ -398,6 +402,11 @@ const ExamList = () => {
                         <Link to={`/exam/${exam.id || exam._id}`} className="flex items-center space-x-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-200">
                           <Play size={16} />
                           <span>Take Exam</span>
+                        </Link>
+                      ) : status === 'completed' ? (
+                        <Link to={`/exam/${exam.id || exam._id}/view`} className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
+                          <CheckCircle size={16} />
+                          <span>View Your Scores</span>
                         </Link>
                       ) : (
                         <button className="flex items-center space-x-2 px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed" disabled>

@@ -18,8 +18,11 @@ const CreateExam = () => {
     questions: []
   })
 
+  const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
+
   const addQuestion = () => {
     const newQuestion = {
+      id: generateId(),
       type: 'multiple_choice',
       question: '',
       options: ['', '', '', ''],
@@ -67,11 +70,15 @@ const CreateExam = () => {
       return
     }
 
+    // Ensure all questions have an id
+    const questionsWithId = examData.questions.map(q => q.id ? q : { ...q, id: generateId() });
+
     setLoading(true)
     try {
       const createdExam = await createExam({
         ...examData,
-        totalQuestions: examData.questions.length
+        questions: questionsWithId,
+        totalQuestions: questionsWithId.length
       })
       console.log('Created exam:', createdExam);
       navigate(`/admin/exams/edit/${createdExam._id}`)

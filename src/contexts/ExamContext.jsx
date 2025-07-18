@@ -119,6 +119,8 @@ export const ExamProvider = ({ children }) => {
     console.log('submitExam called with:', examOrId, answers);
     console.log('Current exams:', exams);
     console.log('Exam found:', exam);
+    console.log('DEBUG: answers object:', answers);
+    console.log('DEBUG: exam.questions:', exam.questions);
     try {
       setLoading(true)
       if (!exam) {
@@ -131,13 +133,14 @@ export const ExamProvider = ({ children }) => {
       let earnedScore = 0
 
       exam.questions.forEach(question => {
+        const qid = question.id || question._id;
         totalScore += question.points
         if (question.type === 'multiple_choice' || question.type === 'true_false') {
-          if (answers[question.id] === question.correctAnswer) {
+          if (answers[qid] === question.correctAnswer) {
             earnedScore += question.points
           }
         } else if (question.type === 'essay') {
-          if (answers[question.id] && answers[question.id].trim().length > 10) {
+          if (answers[qid] && answers[qid].trim().length > 10) {
             earnedScore += question.points * 0.8
           }
         }
@@ -165,7 +168,18 @@ export const ExamProvider = ({ children }) => {
       })
       if (!response.ok) throw new Error('Failed to save result')
       toast.success('Exam submitted and result saved!')
-      return await response.json()
+      const resultData = await response.json();
+      // Fetch latest results for the user
+      if (user && (user.id || user._id)) {
+        try {
+          const res = await fetch(`/api/auth/results/user/${user.id || user._id}`);
+          if (res.ok) {
+            const data = await res.json();
+            setExamResults(data);
+          }
+        } catch (e) { /* ignore */ }
+      }
+      return resultData;
     } catch (error) {
       toast.error('Failed to submit exam')
       throw error
