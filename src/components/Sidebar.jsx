@@ -15,7 +15,28 @@ import {
 
 const Sidebar = () => {
   const { user, logout } = useAuth()
-  const { exams, examResults } = useExam()
+  let exams = []
+  let examResults = []
+  let contextError = null
+  try {
+    const examContext = useExam()
+    exams = examContext.exams
+    examResults = examContext.examResults
+  } catch (err) {
+    contextError = err
+  }
+
+  if (contextError) {
+    return (
+      <aside className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-sm border-r border-gray-200 dark:border-gray-700 z-30 flex items-center justify-center">
+        <div className="p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-600 dark:text-red-400">Sidebar Error</h2>
+          <p className="text-gray-700 dark:text-gray-300 mt-2">Sidebar must be used within an <b>ExamProvider</b> context.</p>
+          <p className="text-xs text-gray-400 mt-2">{contextError.message}</p>
+        </div>
+      </aside>
+    )
+  }
 
   // Calculate live stats for students
   let examsTaken = 0

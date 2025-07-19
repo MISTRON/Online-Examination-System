@@ -1,0 +1,26 @@
+﻿
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : [{"_id":"687b4844d2e0206202be25a6","user":{"_id":"687a779fbaac56fb5f2f0b7c","name":"Gov
+                    ind","email":"govind@student.com"},"exam":{"_id":"686d7a80721f462c798d7ffc","title":"Co
+                    mputer Fundamentals"},"sco...
+RawContent        : HTTP/1.1 200 OK
+                    Vary: Origin
+                    access-control-allow-origin: *
+                    connection: close
+                    Content-Length: 935
+                    Content-Type: application/json; charset=utf-8
+                    Date: Sat, 19 Jul 2025 21:30:57 GMT
+                    ETag: W/"3a7-...
+Forms             : {}
+Headers           : {[Vary, Origin], [access-control-allow-origin, *], [connection, close], 
+                    [Content-Length, 935]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : System.__ComObject
+RawContentLength  : 935
+
+
+

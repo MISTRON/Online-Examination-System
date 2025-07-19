@@ -29,13 +29,14 @@ import {
   PieChart,
   Activity,
   Users,
-  UserCheck
+  UserCheck,
+  Trash2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const ExamResults = () => {
   const { user, logout, darkMode, toggleDarkMode } = useAuth()
-  const { examResults } = useExam()
+  const { examResults, fetchAllResults } = useExam()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [expandedPanels, setExpandedPanels] = useState({
@@ -47,23 +48,38 @@ const ExamResults = () => {
   const [touchStartX, setTouchStartX] = useState(null)
   const [touchEndX, setTouchEndX] = useState(null)
   const [results, setResults] = useState([])
+  const [reviewResult, setReviewResult] = useState(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
+  // If admin/teacher, fetch all results; else fetch only user results
   useEffect(() => {
     if (!user) return;
-    const fetchResults = async () => {
-      try {
-        const response = await fetch(`/api/auth/results/user/${user.id}`)
-        if (!response.ok) throw new Error('Failed to fetch results')
-        const data = await response.json()
-        setResults(data)
-      } catch (err) {
-        toast.error('Failed to fetch results')
+    if (user.role === 'admin' || user.role === 'teacher') {
+      fetchAllResults && fetchAllResults();
+    } else {
+      const fetchResults = async () => {
+        try {
+          const response = await fetch(`/api/auth/results/user/${user.id}`)
+          if (!response.ok) throw new Error('Failed to fetch results')
+          let data = await response.json()
+          // Ensure submittedAt is a Date object
+          data = data.map(result => ({
+            ...result,
+            submittedAt: result.submittedAt ? new Date(result.submittedAt) : null
+          }))
+          setResults(data)
+        } catch (err) {
+          toast.error('Failed to fetch results')
+        }
       }
+      fetchResults()
     }
-    fetchResults()
   }, [user])
 
-  const userResults = results
+  // For admin/teacher, use examResults from context; for students, use local results state
+  const allResults = (user && (user.role === 'admin' || user.role === 'teacher')) ? examResults : results;
+  // Sort by submittedAt descending
+  const userResults = [...allResults].sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
   const totalExams = userResults.length
   const passedExams = userResults.filter(result => result.passed).length
   const failedExams = totalExams - passedExams
@@ -138,9 +154,37 @@ const ExamResults = () => {
     }
   }, [sidebarOpen, touchStartX, touchEndX])
 
+  // Delete result handler (admin/teacher only)
+  const handleDeleteResult = async (resultId) => {
+    if (!window.confirm('Are you sure you want to delete this result? This action cannot be undone.')) return;
+    try {
+      const response = await fetch(`/api/auth/results/${resultId}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to delete result');
+      toast.success('Result deleted successfully');
+      // Refresh results
+      if (user.role === 'admin' || user.role === 'teacher') {
+        fetchAllResults && fetchAllResults();
+      } else {
+        setResults(results.filter(r => r._id !== resultId && r.id !== resultId));
+      }
+    } catch (err) {
+      toast.error('Failed to delete result');
+    }
+  };
+
+  // Open review modal for a result
+  const handleReview = (result) => {
+    setReviewResult(result);
+    setReviewModalOpen(true);
+  };
+  const closeReviewModal = () => {
+    setReviewModalOpen(false);
+    setReviewResult(null);
+  };
+
   // Statistics
-  const totalResults = results.length
-  const passedResults = results.filter(r => r.passed).length
+  const totalResults = userResults.length
+  const passedResults = userResults.filter(r => r.passed).length
   const failedResults = totalResults - passedResults
   const stats = [
     { title: 'Total Results', value: totalResults, color: 'text-primary-600 dark:text-primary-400', bgColor: 'bg-primary-50 dark:bg-primary-900/20', icon: BarChart3 },
@@ -240,6 +284,25 @@ const ExamResults = () => {
                 const scoreBadge = getScoreBadge(result.percentage)
                 return (
                   <div key={result._id || result.id || idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                    {/* Delete button for admin/teacher */}
+                    {(user && (user.role === 'admin' || user.role === 'teacher')) && (
+                      <>
+                        <button
+                          className="mr-2 p-2 rounded hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400"
+                          title="Review Submission"
+                          onClick={() => handleReview(result)}
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button
+                          className="mr-4 p-2 rounded hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400"
+                          title="Delete Result"
+                          onClick={() => handleDeleteResult(result._id || result.id)}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </>
+                    )}
                     <div className="flex items-center space-x-4">
                       <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
                         result.passed ? 'bg-green-100 dark:bg-green-900' : 'bg-red-100 dark:bg-red-900'
@@ -252,14 +315,23 @@ const ExamResults = () => {
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-900 dark:text-white">{result.examTitle}</h3>
+                        {/* Show user info for admin/teacher */}
+                        {(user && (user.role === 'admin' || user.role === 'teacher')) && (
+                          <div className="text-sm text-gray-700 dark:text-gray-300">
+                            <span className="font-semibold">{result.user?.name || 'Unknown User'}</span>
+                            {result.user?.email && (
+                              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">({result.user.email})</span>
+                            )}
+                          </div>
+                        )}
                         <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                           <span className="flex items-center">
                             <Calendar size={14} className="mr-1" />
-                            {result.submittedAt && result.submittedAt instanceof Date ? result.submittedAt.toLocaleDateString() : 'Date not available'}
+                            {result.submittedAt ? result.submittedAt.toLocaleDateString() : 'Date not available'}
                           </span>
                           <span className="flex items-center">
                             <Clock size={14} className="mr-1" />
-                            {result.submittedAt && result.submittedAt instanceof Date ? result.submittedAt.toLocaleTimeString() : 'Time not available'}
+                            {result.submittedAt ? result.submittedAt.toLocaleTimeString() : 'Time not available'}
                           </span>
                         </div>
                       </div>
@@ -404,7 +476,7 @@ const ExamResults = () => {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900 dark:text-white">{result.examTitle}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {result.submittedAt && result.submittedAt instanceof Date ? result.submittedAt.toLocaleDateString() : 'Date not available'}
+                        {result.submittedAt ? result.submittedAt.toLocaleDateString() + ' ' + result.submittedAt.toLocaleTimeString() : 'Date not available'}
                       </p>
                     </div>
                     <span className={`text-sm font-medium ${getScoreColor(result.percentage)}`}>
@@ -417,6 +489,86 @@ const ExamResults = () => {
           </div>
         </div>
       </div>
+
+      {/* Review Modal for admin/teacher */}
+      {reviewModalOpen && reviewResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
+            <button onClick={closeReviewModal} className="absolute top-2 right-2 p-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              <X size={24} />
+            </button>
+            <h2 className="text-xl font-bold mb-2">Review Submission</h2>
+            <div className="mb-2 text-gray-700 dark:text-gray-300">
+              <b>User:</b> {reviewResult.user?.name || 'Unknown User'} {reviewResult.user?.email && <span className="ml-2 text-xs text-gray-500">({reviewResult.user.email})</span>}
+            </div>
+            <div className="mb-2 text-gray-700 dark:text-gray-300">
+              <b>Exam:</b> {reviewResult.exam?.title || reviewResult.examTitle}
+            </div>
+            <div className="mb-2 text-gray-700 dark:text-gray-300">
+              <b>Submitted at:</b> {reviewResult.submittedAt ? new Date(reviewResult.submittedAt).toLocaleString() : 'N/A'}
+            </div>
+            <div className="mb-2 text-gray-700 dark:text-gray-300">
+              <b>Score:</b> {reviewResult.score}/{reviewResult.totalScore} ({reviewResult.percentage}%)
+            </div>
+            <div className="mb-4 text-gray-700 dark:text-gray-300">
+              <b>Status:</b> {reviewResult.passed ? <span className="text-green-600">Passed</span> : <span className="text-red-600">Failed</span>}
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Answers</h3>
+            <ol className="list-decimal pl-6">
+              {reviewResult.exam?.questions && reviewResult.exam.questions.length > 0 ? reviewResult.exam.questions.map((q, idx) => {
+                const qid = q.id || q._id;
+                const userAnswer = reviewResult.answers?.[qid];
+                const isCorrect = userAnswer !== undefined && userAnswer === q.correctAnswer;
+                return (
+                  <li key={qid || idx} className="mb-4">
+                    <div className="font-medium flex items-center gap-2">
+                      {q.question}
+                      {isCorrect ? <CheckCircle className="inline text-green-600" size={18} /> : <XCircle className="inline text-red-600" size={18} />}
+                    </div>
+                    <div className="text-sm text-gray-500 mb-1">Type: {q.type}</div>
+                    {q.options && q.options.length > 0 && (
+                      <ul className="list-disc pl-6 mb-1">
+                        {q.options.map((opt, oidx) => {
+                          let optClass = '';
+                          if (oidx === userAnswer && oidx === q.correctAnswer) optClass = 'bg-green-100 text-green-800 font-bold';
+                          else if (oidx === userAnswer && oidx !== q.correctAnswer) optClass = 'bg-red-100 text-red-800 font-bold';
+                          else if (oidx === q.correctAnswer) optClass = 'bg-green-50 text-green-700';
+                          return (
+                            <li key={oidx} className={optClass + ' rounded px-2 py-1'}>
+                              {opt}
+                              {oidx === userAnswer && <span className="ml-2">(User answer)</span>}
+                              {oidx === q.correctAnswer && <span className="ml-2 text-green-700">(Correct answer)</span>}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                    {q.type === 'true_false' && (
+                      <div className="mb-1">
+                        <span className={isCorrect ? 'text-green-700 font-bold' : 'text-red-700 font-bold'}>
+                          User answer: {String(userAnswer)}
+                          {isCorrect ? <CheckCircle className="inline ml-2 text-green-600" size={16} /> : <XCircle className="inline ml-2 text-red-600" size={16} />}
+                        </span>
+                        <span className="ml-4 text-green-700">Correct answer: {String(q.correctAnswer)}</span>
+                      </div>
+                    )}
+                    {q.type === 'essay' && (
+                      <div className="mb-1">
+                        <span className={isCorrect ? 'text-green-700 font-bold' : 'text-red-700 font-bold'}>
+                          User answer: {userAnswer}
+                          {isCorrect ? <CheckCircle className="inline ml-2 text-green-600" size={16} /> : <XCircle className="inline ml-2 text-red-600" size={16} />}
+                        </span>
+                        <span className="ml-4 text-green-700">Sample correct answer: {q.correctAnswer}</span>
+                      </div>
+                    )}
+                    <div className="text-xs text-gray-400">Points: {q.points}</div>
+                  </li>
+                );
+              }) : <li>No questions.</li>}
+            </ol>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Bottom Navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">

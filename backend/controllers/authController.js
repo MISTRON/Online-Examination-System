@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Result = require('../models/Result');
 const Exam = require('../models/Exam');
+const mongoose = require('mongoose');
 
 exports.register = async (req, res) => {
   try {
@@ -81,9 +82,13 @@ exports.deleteUser = async (req, res) => {
 // Save a result (student submits an exam)
 exports.saveResult = async (req, res) => {
   try {
-    const { user, exam, score, totalScore, percentage, passed, answers } = req.body;
+    let { user, exam, score, totalScore, percentage, passed, answers } = req.body;
     if (!user || !exam || score == null || totalScore == null || percentage == null || passed == null || !answers) {
       return res.status(400).json({ message: 'All fields are required' });
+    }
+    // Ensure user is an ObjectId
+    if (typeof user === 'string') {
+      user = mongoose.Types.ObjectId(user);
     }
     // Prevent duplicate submissions
     const existing = await Result.findOne({ user, exam });
@@ -102,7 +107,7 @@ exports.saveResult = async (req, res) => {
 exports.getUserResults = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const results = await Result.find({ user: userId }).populate('exam', 'title');
+    const results = await Result.find({ user: userId }).populate({ path: 'exam', select: 'title questions' });
     res.json(results);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -117,8 +122,21 @@ exports.getAllResults = async (req, res) => {
     if (req.query.exam) filter.exam = req.query.exam;
     const results = await Result.find(filter)
       .populate('user', 'name email')
-      .populate('exam', 'title');
+      .populate({ path: 'exam', select: 'title questions' });
     res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+exports.deleteResult = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Result.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: 'Result not found' });
+    }
+    res.json({ message: 'Result deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

@@ -195,6 +195,28 @@ export const ExamProvider = ({ children }) => {
     return examResults
   }
 
+  // Fetch all results for admin (with user info)
+  const fetchAllResults = async () => {
+    try {
+      setLoading(true);
+      const headers = user && user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+      const response = await fetch('/api/auth/results', { headers });
+      if (!response.ok) throw new Error('Failed to fetch all results');
+      let data = await response.json();
+      // Ensure submittedAt is a Date object
+      data = data.map(result => ({
+        ...result,
+        submittedAt: result.submittedAt ? new Date(result.submittedAt) : null
+      }));
+      setExamResults(data);
+    } catch (error) {
+      toast.error('Failed to fetch all results');
+      setExamResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     exams,
     currentExam,
@@ -206,7 +228,8 @@ export const ExamProvider = ({ children }) => {
     getExamById,
     submitExam,
     getExamResults,
-    setCurrentExam
+    setCurrentExam,
+    fetchAllResults // <-- add to context value
   }
 
   return (

@@ -32,7 +32,7 @@ import { FaUserCircle } from 'react-icons/fa'
 
 const AdminDashboard = () => {
   const { user, logout, darkMode, toggleDarkMode } = useAuth()
-  const { exams, examResults } = useExam()
+  const { exams, examResults, fetchAllResults } = useExam()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [expandedPanels, setExpandedPanels] = useState({
     insights: true,
@@ -55,7 +55,9 @@ const AdminDashboard = () => {
     : 0
 
   const recentExams = exams.slice(0, 3)
-  const recentResults = examResults.slice(0, 3)
+  // Sort results by submittedAt descending (latest first)
+  const sortedResults = [...examResults].sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  const recentResults = sortedResults.slice(0, 3)
 
   const stats = [
     {
@@ -141,6 +143,11 @@ const AdminDashboard = () => {
       }
     }
   }, [sidebarOpen, touchStartX, touchEndX])
+
+  // Fetch all results for admin on mount
+  useEffect(() => {
+    fetchAllResults && fetchAllResults();
+  }, [fetchAllResults]);
 
   const handleLogout = () => {
     logout()
@@ -388,9 +395,15 @@ const AdminDashboard = () => {
                           )}
                         </div>
                         <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">{result.examTitle}</h3>
+                          <div className="font-semibold text-gray-900 dark:text-white">
+                            Submitted by: {result.user && result.user.name ? result.user.name : 'Unknown User'}
+                            {result.user && result.user.email ? (
+                              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">({result.user.email})</span>
+                            ) : null}
+                          </div>
+                          <h3 className="font-medium text-gray-900 dark:text-white">{result.exam?.title || result.examTitle}</h3>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {new Date(result.submittedAt).toLocaleDateString()}
+                            Submitted at: {result.submittedAt ? result.submittedAt.toLocaleDateString() + ' ' + result.submittedAt.toLocaleTimeString() : 'Date/Time not available'}
                           </p>
                         </div>
                       </div>
