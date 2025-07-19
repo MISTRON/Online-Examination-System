@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: online-exam-backend
+    env: node
+    buildCommand: ''
+    startCommand: 'node server.js'
+    rootDir: .
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false 
